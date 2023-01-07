@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path"
 import Jimp = require("jimp");
 
 // filterImageFromURL
@@ -11,6 +12,7 @@ import Jimp = require("jimp");
 export async function filterImageFromURL(inputURL: string): Promise<string> {
   return new Promise(async (resolve, reject) => {
     try {
+
       const photo = await Jimp.read(inputURL);
       const outpath =
         "/tmp/filtered." + Math.floor(Math.random() * 2000) + ".jpg";
@@ -22,6 +24,7 @@ export async function filterImageFromURL(inputURL: string): Promise<string> {
           resolve(__dirname + outpath);
         });
     } catch (error) {
+      console.log("An error occurred while processing image download ", error)
       reject(error);
     }
   });
@@ -36,4 +39,28 @@ export async function deleteLocalFiles(files: Array<string>) {
   for (let file of files) {
     fs.unlinkSync(file);
   }
+}
+
+
+export function initFilesDeletion() {
+  const fullPath = path.join(__dirname, 'tmp')
+
+  console.log("folder path", fullPath);
+  fs.readdir(fullPath, (error, files) => {
+    if (error) {
+      console.log("No file exist");
+      return
+    }
+
+    console.log("Preparing file(s) to delete...");
+
+    let filesList: Array<string> = files.map(file => path.join(fullPath, file))
+
+    console.log("File(s) to delete prepared", filesList);
+
+    deleteLocalFiles(filesList);
+
+    console.log("Files deleted successfully");
+
+  })
 }
